@@ -1,39 +1,33 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedList;
 
 public class Server {
-    public static ServerSocket server;
-    public static Socket clientSocket;
-    public static BufferedReader in;
-    public static BufferedWriter out;
 
-    public static void main(String[] args) {
+    public static final int PORT = 255;
+    public static LinkedList<ServerConnect> serverList = new LinkedList<>();
 
+    public static void main(String[] args) throws IOException {
+        ServerSocket server = new ServerSocket(PORT);
         try {
-            server = new ServerSocket(255);
-            System.out.println("Server started");
-            clientSocket = server.accept();
+            while (true) {
+                Socket socket = server.accept();
+                System.out.println(socket.getInetAddress());
+                try {
 
-            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()));
-
-            String word = in.readLine();
-            System.out.println("Server get message:" + word);
-            out.write("Your message:" + word +"\n");
-            out.flush();
-            System.out.println("Server send the message");
-
-            clientSocket.close();
-            in.close();
-            out.close();
-            System.out.println("Server stopped");
+                    serverList.add(new ServerConnect(socket));
+                } catch (IOException e) {
+                    socket.close();
+                }
+                if (!socket.isConnected()) {
+                    break;
+                }
+            }
+        } finally {
             server.close();
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
     }
+
 }
+
