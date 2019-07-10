@@ -1,22 +1,24 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Server {
 
-    public static final int PORT = 255;
-    public static LinkedList<ServerConnect> serverList = new LinkedList<>();
+    private static final int PORT = 255;
+    static Set<ServerConnect> serverList = new HashSet<>();
 
     public static void main(String[] args) throws IOException {
         ServerSocket server = new ServerSocket(PORT);
         try {
             while (true) {
                 Socket socket = server.accept();
-                System.out.println(socket.getInetAddress());
+                System.out.println(socket.getInetAddress() + "connected");
                 try {
-
-                    serverList.add(new ServerConnect(socket));
+                    ServerConnect serverConnect = new ServerConnect(socket);
+                    serverConnect.start();
+                    serverList.add(serverConnect);
                 } catch (IOException e) {
                     socket.close();
                 }

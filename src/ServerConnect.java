@@ -11,17 +11,17 @@ public class ServerConnect extends Thread {
         this.socket = socket;
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-        start();
     }
 
     @Override
     public void run() {
         String word;
-        while (true) {
+        while (!Thread.currentThread().isInterrupted()) {
             try {
                 word = in.readLine();
 
                 if (word.equals("!disconnect")) {
+                    System.out.println(this.socket.getInetAddress() + " disconnected from the server");
                     this.downServer();
                     break;
                 }
@@ -30,7 +30,9 @@ public class ServerConnect extends Thread {
                 }
 
             } catch (IOException e) {
+                System.out.println("Loss of connection to one of the clients");
                 e.printStackTrace();
+                break;
             }
         }
     }
@@ -45,16 +47,17 @@ public class ServerConnect extends Thread {
 
     private void downServer() {
         try {
-            if(!socket.isClosed()) {
-                socket.close();
+            if (!socket.isClosed()) {
                 in.close();
                 out.close();
+                socket.close();
                 for (ServerConnect vr : Server.serverList) {
-                    if(vr.equals(this)) vr.interrupt();
+                    if (vr.equals(this)) vr.interrupt();
                     Server.serverList.remove(this);
                 }
             }
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 
 
