@@ -4,12 +4,12 @@ import java.net.Socket;
 public class ServerConnect extends Thread {
 
     private Socket socket;
-    private BufferedReader in;
+    private ObjectInputStream in;
     private BufferedWriter out;
 
     ServerConnect(Socket socket) throws IOException {
         this.socket = socket;
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        in = new ObjectInputStream(socket.getInputStream());
         out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
     }
 
@@ -52,7 +52,7 @@ public class ServerConnect extends Thread {
                 out.close();
                 socket.close();
                 for (ServerConnect vr : Server.serverList) {
-                    if (vr.equals(this)) vr.interrupt();
+                    if (equals(vr)) vr.interrupt();
                     Server.serverList.remove(this);
                 }
             }

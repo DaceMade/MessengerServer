@@ -14,7 +14,7 @@ public class Server {
         try {
             while (true) {
                 Socket socket = server.accept();
-                System.out.println(socket.getInetAddress() + "connected");
+                System.out.println(socket.getInetAddress() + " connected");
                 try {
                     ServerConnect serverConnect = new ServerConnect(socket);
                     serverConnect.start();
