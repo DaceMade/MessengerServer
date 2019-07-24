@@ -1,3 +1,5 @@
+import com.company.ServerMessage;
+
 import java.io.*;
 import java.net.Socket;
 
@@ -5,41 +7,35 @@ public class ServerConnect extends Thread {
 
     private Socket socket;
     private ObjectInputStream in;
-    private BufferedWriter out;
+    private ObjectOutputStream out;
 
     ServerConnect(Socket socket) throws IOException {
         this.socket = socket;
         in = new ObjectInputStream(socket.getInputStream());
-        out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        out = new ObjectOutputStream(socket.getOutputStream());
     }
 
     @Override
     public void run() {
-        String word;
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                word = in.readLine();
-
-                if (word.equals("!disconnect")) {
-                    System.out.println(this.socket.getInetAddress() + " disconnected from the server");
-                    this.downServer();
-                    break;
-                }
+                ServerMessage word = (ServerMessage) in.readObject();
                 for (ServerConnect vr : Server.serverList) {
                     vr.send(word);
                 }
 
-            } catch (IOException e) {
+            } catch (IOException | ClassNotFoundException e) {
                 System.out.println("Loss of connection to one of the clients");
                 e.printStackTrace();
+                downServer();
                 break;
             }
         }
     }
 
-    public void send(String word) {
+    public void send(ServerMessage word) {
         try {
-            out.write(word + '\n');
+            out.writeObject(word);
             out.flush();
         } catch (IOException ignored) {
         }
