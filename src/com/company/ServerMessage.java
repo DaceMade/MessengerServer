@@ -1,5 +1,6 @@
 package com.company;
 
+
 import java.io.Serializable;
 
 public class ServerMessage implements Serializable {

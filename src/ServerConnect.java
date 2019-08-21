@@ -25,9 +25,9 @@ public class ServerConnect extends Thread {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                ServerMessage word = (ServerMessage) in.readObject();
+                ServerMessage serverMessage = (ServerMessage) in.readObject();
                 for (Callback callback : callbacks) {
-                    callback.onReceive(word);
+                    callback.onReceive(serverMessage, this);
                 }
             } catch (IOException | ClassNotFoundException e) {
                 System.out.println("Loss of connection to one of the clients");
@@ -55,7 +55,7 @@ public class ServerConnect extends Thread {
         }
     }
 
-    private void downServer() {
+    public void downServer() {
         try {
             callbacks.clear();
             if (!socket.isClosed()) {
@@ -73,6 +73,6 @@ public class ServerConnect extends Thread {
 
 
     public interface Callback {
-        void onReceive(ServerMessage message);
+        void onReceive(ServerMessage message, ServerConnect server);
     }
 }
